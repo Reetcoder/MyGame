@@ -2,20 +2,26 @@
 var Rules = 1
 var Play  = 2
 var End   = 3
+var lifeend = 4
 var gameState = Rules;
+
+// score
+var score =0;
 
 // Creating Variables for the 1 GameState
 var start;
 var rulePage,backgroundImg; 
 
 // Creating Variables for the 2 GameState
-var Garbage,GarbageGroup,g1,g2,g3;
+var Garbage1,GarbageGroup,g1,g2,g3;
 var Coins,CoinGroup,C1;
 var hand,left,right;;
 var Dustbin,DustbinImg,Basket,BasketImg;
 
 // Creating Variables for the 3 GameState
 var GameOver,Game;
+var lifes,life1,life2,life3
+lifes = [life1,life2,life3]
 
 // Loading All The Images
 function preload() {
@@ -46,6 +52,8 @@ Game =loadImage("Images/Game-Over.jpg");
 red   = loadImage("Images/Red.png")
 black = loadImage("Images/Black.png")
 
+//handimage = loadImage("Hand1.png")
+
 }
 // creating objects
 function setup() {
@@ -63,10 +71,23 @@ function setup() {
 
   start = createSprite(650,500,90,40)
 
+  life1 = createSprite(50,470,30,30)
+  life2 = createSprite(50,520,30,30)
+  life1.addImage(red)
+  life2.addImage(red)
+  life1.scale=0.15
+  life2.scale=0.15
+      
    // creating objects for game state 1
     Dustbin = createSprite(200,490,150,50);
     Dustbin.addImage(DustbinImg)
     Dustbin.scale = 0.25
+
+    hand = createSprite(10,10,10,70);
+    hand.shapeColor = "red"
+    hand.debug = true
+    // hand.addImage(handimage);
+    // Hand.scale = 0.5
   
     Basket = createSprite(690,500,150,50);
     Basket.addImage(BasketImg)
@@ -75,9 +96,12 @@ function setup() {
   // spawning objects for game state 1
     GarbageGroup = new Group();
     CoinsGroup = new Group();
-    ArrowGroup = new Group();
+    ArrowGroup1 = new Group();
+    ArrowGroup2 = new Group();
+
  
 }
+// creating gamestates and spawning objects
 function draw() {
        if (gameState===Rules) {
           // commands should be done in ruleState
@@ -101,9 +125,15 @@ function draw() {
       text("4. If Garbage droped in the Basket = -20",110,400)
       textSize(50)
       fill("Pink")
-      text("3 Lives Are Avilable",110,500)
+      text("2 Lives Are Avilable",110,500)
       textSize(30)
       text("Start !",630,500)
+
+      
+      life1.visible = false;
+      life2.visible = false;
+      //life3.visible = false;
+      
 
       Dustbin.visible = false;
       Basket.visible = false;
@@ -124,15 +154,12 @@ function draw() {
       // commands should be done in playState
         background(backgroundImg);
 
-        life1 = createSprite(50,470,30,30)
-        life2 = createSprite(50,520,30,30)
-        life3 = createSprite(50,570,30,30)
-        life1.addImage(red)
-        life2.addImage(red)
-        life3.addImage(red)
-        life1.scale=0.15
-        life2.scale=0.15
-        life3.scale=0.15
+        textSize(30)
+        text('score- '+ score,650,50)
+        
+        life1.visible = true;
+        life2.visible = true;
+        // life3.visible = true;
 
         rulePage.visible = false;
         rulePage4.visible = false;
@@ -144,35 +171,81 @@ function draw() {
         Dustbin.visible = true;
         Basket.visible = true;
 
-        // hand.x=mouseX;
-        // hand.y=mouseY;
+        hand.x=mouseX;
+        hand.y=mouseY;
       
-        SpawnGarbage();
-        SpawnCoins();
-        SpawnArrows();
-
        
-        if (mousePressedOver(Garbage)) {
-          Garbage.visible = false
+
+
+        if(GarbageGroup.isTouching(hand)){
+          // GarbageGroup.setVelocityXEach(0);
+          // GarbageGroup.setVelocityYEach(0);
+          Garbage.visible = false;
+          GarbageGroup.setLifetimeEach(-1);
+          Garbage.x= mouseX;
+          Garbage.y= mouseY;
+        }
+        if(CoinsGroup.isTouching(hand)){
+          Coins.visible = false;
+          CoinsGroup.setLifetimeEach(-1);
+            Coins.x= mouseX;
+            Coins.y= mouseY;
           }
-          if (keyDown("space")) {
-            SpawnGarbage();
-      }
-        
-    
+        if (Dustbin.isTouching(hand)) {
+            Coins.visible = true;
+            Coins.y=470;
+            Coins.x=Dustbin.x;
+            SpawnCoins();
+            score = score-20
+            }
+        if (Dustbin.isTouching(hand)) {
+          Garbage.visible = true;
+          Garbage.y=470;
+          Garbage.x=Dustbin.x;
+          //Garbage.depth = Dustbin.depth-1;
+          SpawnCoins();
+          score += 10
+          }
+        // if (Basket.isTouching(hand)) {
+        //     Coins.visible = true;
+        //     Coins.y=470;
+        //     Coins.x=Dustbin.x;
+        //     SpawnCoins();
+        //     score += 20
+        //     }
+        // if (Basket.isTouching(hand)) {
+        //       Garbage.visible = true;
+        //       Garbage.y=470;
+        //       Garbage.x=Dustbin.x;
+        //       //Garbage.depth = Dustbin.depth-1;
+        //       SpawnGarbage();
+        //       score = score-10
+        //       }
+        if(ArrowGroup1.isTouching(hand)){
+              life1.destroy();
+             
+            }
+         if(ArrowGroup2.isTouching(hand)){
+              life2.destroy();
+              
+            }
+
+
+          SpawnGarbage();
+          SpawnCoins();
+          SpawnArrows();
+      
     }
    
+  
     drawSprites()
 }
 function SpawnGarbage() {
-  if(frameCount % 70 === 0) {
+  if(frameCount % 30 === 0) {
     var rand = random(0,800);
     Garbage = createSprite(900,15,10,40);
     Garbage.velocityY = 3;
-    Garbage.x=rand;
-    
-    
-      
+    Garbage.x=rand; 
     //generate random obstacles
     var rand = Math.round(random(1,3));
     switch(rand) {
@@ -188,6 +261,7 @@ function SpawnGarbage() {
     //assign scale and lifetime to the obstacle           
     Garbage.scale = 0.1;
     Garbage.lifetime = 300;
+    hand.depth = Garbage.depth+1;
     //add each obstacle to the group
     GarbageGroup.add(Garbage);
   }
@@ -221,8 +295,8 @@ if (frameCount % 35 === 0) {
   RightArrow.velocityX=7
   RightArrow.lifetime=130
 
-  ArrowGroup.add(leftArrow);
-  ArrowGroup.add(RightArrow);
+  ArrowGroup1.add(leftArrow);
+  ArrowGroup2.add(RightArrow);
 }
   
   var shooter = createSprite(50,300,40,40)
@@ -232,3 +306,4 @@ if (frameCount % 35 === 0) {
   shooter1.addImage(Shooter1)
   shooter1.scale=0.1;
 }
+

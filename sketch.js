@@ -13,7 +13,7 @@ var start;
 var rulePage,backgroundImg; 
 
 // Creating Variables for the 2 GameState
-var Garbage1,GarbageGroup,g1,g2,g3;
+var Garbage,GarbageGroup,g1,g2,g3;
 var Coins,CoinGroup,C1;
 var hand,left,right;;
 var Dustbin,DustbinImg,Basket,BasketImg;
@@ -77,7 +77,8 @@ function setup() {
   life2.addImage(red)
   life1.scale=0.15
   life2.scale=0.15
-      
+   
+  
    // creating objects for game state 1
     Dustbin = createSprite(200,490,150,50);
     Dustbin.addImage(DustbinImg)
@@ -99,6 +100,7 @@ function setup() {
     ArrowGroup1 = new Group();
     ArrowGroup2 = new Group();
 
+    
  
 }
 // creating gamestates and spawning objects
@@ -184,18 +186,18 @@ function draw() {
           GarbageGroup.setLifetimeEach(-1);
           Garbage.x= mouseX;
           Garbage.y= mouseY;
+          
         }
-        if(CoinsGroup.isTouching(hand)){
-          Coins.visible = false;
-          CoinsGroup.setLifetimeEach(-1);
-            Coins.x= mouseX;
-            Coins.y= mouseY;
-          }
+        // if(CoinsGroup.isTouching(hand)){
+        //   Coins.visible = false;
+        //   CoinsGroup.setLifetimeEach(-1);
+        //     Coins.x= mouseX;
+        //     Coins.y= mouseY;
+        //   }
         if (Dustbin.isTouching(hand)) {
             Coins.visible = true;
             Coins.y=470;
             Coins.x=Dustbin.x;
-            SpawnCoins();
             score = score-20
             }
         if (Dustbin.isTouching(hand)) {
@@ -203,30 +205,31 @@ function draw() {
           Garbage.y=470;
           Garbage.x=Dustbin.x;
           //Garbage.depth = Dustbin.depth-1;
-          SpawnCoins();
-          score += 10
+          score += 20
           }
-        // if (Basket.isTouching(hand)) {
-        //     Coins.visible = true;
-        //     Coins.y=470;
-        //     Coins.x=Dustbin.x;
-        //     SpawnCoins();
-        //     score += 20
-        //     }
-        // if (Basket.isTouching(hand)) {
-        //       Garbage.visible = true;
-        //       Garbage.y=470;
-        //       Garbage.x=Dustbin.x;
-        //       //Garbage.depth = Dustbin.depth-1;
-        //       SpawnGarbage();
-        //       score = score-10
-        //       }
+
+        if (CoinsGroup.isTouching(Basket)) {
+          // Coins.visible = true;
+          // Coins.y=470;
+          // Coins.x=Dustbin.x;
+          score += 20
+            }
+        if (Basket.isTouching(hand)) {
+         // Garbage.visible = true;
+                 //Garbage.y=470;
+              //Garbage.x=Dustbin.x;
+              score = score-10
+              }
+
+              var count=2;
         if(ArrowGroup1.isTouching(hand)){
               life1.destroy();
+              count--;
              
             }
          if(ArrowGroup2.isTouching(hand)){
               life2.destroy();
+              count--
               
             }
 
@@ -234,7 +237,21 @@ function draw() {
           SpawnGarbage();
           SpawnCoins();
           SpawnArrows();
+
+          if (count===0){
+            gameState = End;
+          }
       
+    }
+    
+
+    else if(gameState === End){
+    end =  createSprite(350,200,1000,800)
+    end.shapeColor = "black"
+    textSize(50);
+    stroke("Yellow");
+  text("Game Over ",200,200)
+     
     }
    
   
@@ -246,17 +263,8 @@ function SpawnGarbage() {
     Garbage = createSprite(900,15,10,40);
     Garbage.velocityY = 3;
     Garbage.x=rand; 
-    //generate random obstacles
-    var rand = Math.round(random(1,3));
-    switch(rand) {
-      case 1: Garbage.addImage(g1);
-              break;
-      case 2: Garbage.addImage(g2);
-              break;
-      case 3: Garbage.addImage(g3);
-              break;
-      default: break;
-    }
+    Garbage.addImage(g1);
+      
     
     //assign scale and lifetime to the obstacle           
     Garbage.scale = 0.1;
